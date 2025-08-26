@@ -4,111 +4,21 @@
 <meta charset="UTF-8">
 <title>UCHIHA BANK</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background: #f5f9ff;
-    }
-    /* Intro screen */
-    #intro {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        font-size: 3em;
-        font-weight: bold;
-        color: #007bff;
-        background: white;
-    }
-    /* Login screen */
-    #login-section {
-        display: none;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-    #login-section h1 {
-        color: #007bff;
-        margin-bottom: 20px;
-    }
-    .top-right-btn {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: #007bff;
-        color: white;
-        padding: 8px 15px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    .login-box {
-        background: white;
-        padding: 20px;
-        display: inline-block;
-        border-radius: 10px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-    .login-box h2 {
-        margin-bottom: 15px;
-        color: #007bff;
-    }
-    .login-box input {
-        display: block;
-        margin: 10px auto;
-        padding: 10px;
-        width: 200px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-    .login-box button {
-        background: #007bff;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    /* Panels */
-    header {
-        background: #007bff;
-        color: white;
-        padding: 10px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    main {
-        padding: 20px;
-    }
-    .hidden {
-        display: none;
-    }
-    /* Popup */
-    .popup {
-        display: none;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.4);
-        align-items: center;
-        justify-content: center;
-    }
-    .popup-content {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        min-width: 300px;
-    }
-    .popup-content input {
-        width: 100%;
-        margin: 5px 0;
-        padding: 8px;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f9ff; }
+    #intro { display: flex; align-items: center; justify-content: center; height: 100vh; font-size: 3em; font-weight: bold; color: #007bff; background: white; }
+    #login-section { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    #login-section h1 { color: #007bff; margin-bottom: 20px; }
+    .top-right-btn { position: absolute; top: 20px; right: 20px; background: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; }
+    .login-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); text-align: center; }
+    .login-box h2 { margin-bottom: 15px; color: #007bff; }
+    .login-box input { display: block; margin: 10px auto; padding: 10px; width: 200px; border: 1px solid #ccc; border-radius: 5px; }
+    .login-box button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    header { background: #007bff; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+    main { padding: 20px; }
+    .hidden { display: none; }
+    .popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); align-items: center; justify-content: center; }
+    .popup-content { background: white; padding: 20px; border-radius: 10px; min-width: 300px; }
+    .popup-content input { width: 100%; margin: 5px 0; padding: 8px; }
 </style>
 </head>
 <body>
@@ -178,11 +88,14 @@
 <script>
 let isAdmin = false;
 let currentUser = null;
+
+// Load all data from LocalStorage
 let users = JSON.parse(localStorage.getItem('users')) || [];
-let depositRequests = [];
-let withdrawRequests = [];
+let depositRequests = JSON.parse(localStorage.getItem('depositRequests')) || [];
+let withdrawRequests = JSON.parse(localStorage.getItem('withdrawRequests')) || [];
 let editIndex = null;
 
+// Intro screen
 function showIntro() {
     setTimeout(() => {
         document.getElementById('intro').style.display = 'none';
@@ -191,6 +104,7 @@ function showIntro() {
 }
 showIntro();
 
+// Switch between Admin and User login
 document.getElementById('toggle-login').onclick = function() {
     isAdmin = !isAdmin;
     document.getElementById('login-panel-title').textContent = isAdmin ? 'Admin Login' : 'User Login';
@@ -290,6 +204,9 @@ function approveRequest(type, index) {
     }
     saveData();
     loadUsers();
+    if (currentUser && currentUser.username === user.username) {
+        document.getElementById('user-balance').textContent = user.balance;
+    }
 }
 
 function rejectRequest(type, index) {
@@ -345,8 +262,14 @@ function closePopup() {
 
 function saveData() {
     localStorage.setItem('users', JSON.stringify(users));
+    localStorage.setItem('depositRequests', JSON.stringify(depositRequests));
+    localStorage.setItem('withdrawRequests', JSON.stringify(withdrawRequests));
+}
+
+// Load data on refresh
+window.onload = function() {
+    renderRequests();
 }
 </script>
 </body>
-
 </html>
